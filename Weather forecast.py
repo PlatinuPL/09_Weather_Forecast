@@ -1,3 +1,4 @@
+#It is a simple application that can show you what the weather is like in the city you entered in the input field
 import tkinter as tk
 import requests
 from tkinter import BOTH, IntVar
