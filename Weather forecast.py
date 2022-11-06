@@ -1,3 +1,5 @@
+#It is a simple application that can show you what the weather is like in the city you entered in the input field
+#Weather Forecast
 import tkinter as tk
 import requests
 from tkinter import BOTH, IntVar
@@ -22,20 +24,25 @@ small_font = ("SimSun", 10)
 
 # Define functions
 def search():
+    """Use open weather api to look up current weather conditions given a city/ city, country"""
     global response
 
+    #Get API response
+    #URL and my api key....USE YOUR OWN API KEY!
     url = "https://api.openweathermap.org/data/2.5/weather?"
     api_key = "ccf76919f4cadd334cc26a07f6e4b865"
 
+    #Search by the appropriate query, either city name or zip
     if search_method.get() == 1:
         querystring = {"q":city_entry.get(), "appid":api_key, "units":"metric"}
     elif search_method.get() ==2:
         querystring = {"zip":city_entry.get(), "appid":api_key, "units":"metric"}
 
+    #Call API
     response = requests.request("GET", url, params=querystring)
     response = response.json()
 
-
+    #Example response return
     '''{'coord': {'lon': 16.8927, 'lat': 52.3471}, 'weather': [{'id': 802, 'main': 'Clouds', 'description': 'scattered clouds',
      'icon': '03d'}], 'base': 'stations', 'main': {'temp': 291.09, 'feels_like': 290.72, 'temp_min': 290.98, 'temp_max': 292.81,
       'pressure': 1004, 'humidity': 68}, 'visibility': 10000, 'wind': {'speed': 3.6, 'deg': 270}, 'clouds': {'all': 40},
@@ -45,6 +52,8 @@ def search():
     get_icon()
 
 def get_weather():
+    """Grab information from API response and update our weather labels."""
+    #Gather the data to be used from the API response
     city_name = response["name"]
     city_lat = str(response["coord"]["lat"])
     city_lon = str(response["coord"]["lon"])
@@ -57,7 +66,7 @@ def get_weather():
     temp_min = str(response["main"]["temp_min"])
     temp_max = str(response["main"]["temp_max"])
     humidity = str(response["main"]["humidity"])
-
+    #Update output lables
     city_info_label.config(text = city_name + "(" + city_lat + "," + city_lon + ")", font = large_font, bg = output_color)
     weather_label.config(text = "Weather: " + main_weather + ", " + description, font = small_font, bg = output_color)
     temp_label.config(text = "Temperature: " + temp + " C", font = small_font, bg = output_color)
@@ -69,20 +78,28 @@ def get_weather():
 
 
 def get_icon():
+    """Get the appropriate weather icon from API response"""
     global img
+
+    #Get the icon id from API response.
     icon_id = response["weather"][0]['icon']
 
+    #Get the icon from the correct webiste
     url = "http://openweathermap.org/img/wn/{icon}@2x.png".format(icon=icon_id)
 
+    #Make a request at the url to download the icon; stream=True automatically dl
     icon_response = requests.get(url, stream=True)
 
+    #Turn into a form tkinter/python can use
     img_data = icon_response.content
-
     img = ImageTk.PhotoImage(Image.open(BytesIO(img_data)))
 
+    #Update label
     photo_label.config(image = img)
 
-    # Define layout
+
+
+# Define layout
 # Create frames
 sky_frame = tk.Frame(root, bg=sky_color, height=250)
 grass_frame = tk.Frame(root, bg=grass_color)
